@@ -21,7 +21,8 @@ public enum WeatherConditionCodes {
     NIGHT_CLOUDY("night-cloudy", 0xf031),
     HAIL("hail", 0xf015),
     THUNDERSTORM("thunderstorm", 0xf01e),
-    TORNADO("tornado", 0xf056);
+    TORNADO("tornado", 0xf056),
+    WIND("wind", 0xf021);
 
     String value;
     int character;

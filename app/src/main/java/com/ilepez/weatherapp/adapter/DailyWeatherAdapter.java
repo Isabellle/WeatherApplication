@@ -44,6 +44,7 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
 
         Typeface weatherFont = FontCache.getFont(context,"fonts/weathericons-regular-webfont.ttf");
         holder.textviewDailyWeatherIcon.setTypeface(weatherFont);
+
         String weatherIcon = itemList.get(position).getIcon();
         holder.textviewDailyWeatherIcon.setText(WeatherConditionCodes.fromString(weatherIcon).toString());
 

@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -108,8 +107,7 @@ public class FragmentStatePagerSupport extends AppCompatActivity {
         private String city;
         private Double latitude, longitude;
 
-        private TextView textViewCurrentDayTemp,textViewCurrentDay,textViewCurrentCityName,textViewCurrentDayStatus,textViewCurrentWeatherIcon;
-        private Button buttonRefresh;
+        private TextView textViewCurrentDayTemp,textViewCurrentCityName,textViewCurrentWeatherIcon;
         private PicassoHelper imageViewCity;
         private ImageView imageViewRefresh;
 
@@ -133,7 +131,6 @@ public class FragmentStatePagerSupport extends AppCompatActivity {
             imageViewRefresh = (ImageView) view.findViewById(R.id.imageView_refresh);
             textViewCurrentDayTemp = (TextView)view.findViewById(R.id.textview_current_day_temperature);
             textViewCurrentCityName = (TextView)view.findViewById(R.id.textview_city_name);
-            textViewCurrentDayStatus = (TextView)view.findViewById(R.id.textview_current_day_status);
             textViewCurrentWeatherIcon = (TextView)view.findViewById(R.id.textview_current_weather_icon);
             imageViewCity = (PicassoHelper)view.findViewById(R.id.temperature_top_area);
 
@@ -187,8 +184,7 @@ public class FragmentStatePagerSupport extends AppCompatActivity {
 
                     int currentTemperature = StringHelper.FormatDoubleToInt(response.body().getCurrently().getTemperature());
                     textViewCurrentDayTemp.setText(currentTemperature+" °C");
-                    textViewCurrentCityName.setText(StringHelper.capitalize(city));
-                    textViewCurrentDayStatus.setText(response.body().getCurrently().getSummary());
+                    textViewCurrentCityName.setText(StringHelper.capitalize(city)+" - "+response.body().getCurrently().getSummary());
 
                     Typeface weatherFont = FontCache.getFont(getContext(),"fonts/weathericons-regular-webfont.ttf");
                     textViewCurrentWeatherIcon.setTypeface(weatherFont);
