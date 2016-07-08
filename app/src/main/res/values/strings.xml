@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">WeatherApp</string>
+
+    <string name="common_error_messsage">Une erreur est survenue: </string>
+    <string name="reload">Rafraîchir</string>
+    <string name="loadingMessage">Hop hop...</string>
+</resources>

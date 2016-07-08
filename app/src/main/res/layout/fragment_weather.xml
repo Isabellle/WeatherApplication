@@ -1,0 +1,94 @@
+<com.ilepez.weatherapp.utils.PicassoHelper
+    android:id="@+id/temperature_top_area"
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:orientation="vertical"
+    android:background="@color/blackOpacity30"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    >
+<RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageView_refresh"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:tint="#BFffffff"
+            android:padding="5dp"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/sync"
+            />
+
+
+        <com.ilepez.weatherapp.utils.WeatherIconTextView
+            android:id="@+id/textview_current_weather_icon"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:textSize="80sp"
+            android:layout_marginTop="60dp"
+            android:gravity="center_horizontal"
+            android:textColor="@android:color/white"
+            />
+
+        <TextView
+            android:id="@+id/textview_current_day_temperature"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/textview_current_day_temperature"
+            android:layout_below="@id/textview_current_weather_icon"
+            android:textAlignment="center"
+
+            />
+
+        <TextView
+            android:id="@+id/textview_current_day_status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-condensed"
+            android:textColor="@android:color/white"
+            android:textAlignment="center"
+            android:layout_below="@id/textview_current_day_temperature"
+            android:layout_marginBottom="50dp"
+            />
+
+        <TextView
+            android:id="@+id/textview_city_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif-light"
+            android:layout_below="@id/textview_current_day_status"
+            android:textAlignment="center"
+            />
+
+        <TextView
+            android:id="@+id/textview_current_day"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif-light"
+            android:layout_below="@id/textview_city_name"
+            android:textAlignment="center"
+            />
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:padding="10dp">
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recyclerview_daily_weather"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true">
+
+                </android.support.v7.widget.RecyclerView>
+        </RelativeLayout>
+
+        
+    </com.ilepez.weatherapp.utils.PicassoHelper>
