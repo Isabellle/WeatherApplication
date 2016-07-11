@@ -2,6 +2,7 @@ package com.ilepez.weatherapp.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -249,6 +250,21 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     public void updateUI(){
 
+        int orientation = getResources().getConfiguration().orientation;
+
+        switch(orientation){
+            case Configuration.ORIENTATION_LANDSCAPE:
+                Log.v(LOG_TAG, "landscape");
+                imageViewCity.setAdjustViewBounds(false);
+                break;
+            case Configuration.ORIENTATION_PORTRAIT:
+                Log.v(LOG_TAG, "landscape");
+                imageViewCity.setAdjustViewBounds(true);
+                break;
+            default:
+                imageViewCity.setAdjustViewBounds(true);
+        }
+
         textViewCurrentWeatherIcon.setText(currentWeatherIconValue);
         textViewCurrentDayTemp.setText(currentDayTempValue);
         textViewCurrentCityName.setText(currentCityNameValue);
@@ -285,7 +301,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                         public void run() {
 
                             Bitmap blurredBitmap = BlurBuilder.fastblur(loadedImage, 1, 8);
-                            imageViewCity.setColorFilter( 0x8C000000, PorterDuff.Mode.OVERLAY);
+                            imageViewCity.setColorFilter( 0xB3000000, PorterDuff.Mode.OVERLAY);
                             imageViewCity.setImageBitmap(blurredBitmap);
                         }
                     });

@@ -11,18 +11,12 @@
         android:background="@android:color/white"
         >
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            />
-
         <ImageView
             android:id="@+id/imageViewCity"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             />
 
         <RelativeLayout
@@ -35,7 +29,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
-                android:padding="5dp"
+                android:padding="10dp"
                 android:src="@drawable/sync"
                 android:tint="#BFffffff"
                 />
@@ -66,7 +60,6 @@
                 android:id="@+id/textview_city_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
                 android:layout_below="@id/textview_current_day_temperature"
                 android:fontFamily="sans-serif-light"
                 android:gravity="center_horizontal"
@@ -92,16 +85,14 @@
         <RelativeLayout
             android:id="@+id/layout_daily_details"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/layout_current_info"
-
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
             android:padding="10dp">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recyclerview_daily_weather"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true">
+                android:layout_height="wrap_content">
 
             </android.support.v7.widget.RecyclerView>
         </RelativeLayout>
