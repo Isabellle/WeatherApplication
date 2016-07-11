@@ -1,95 +1,104 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/scrollview"
+<ScrollView android:id="@+id/scrollview"
+            xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport="true">
 
-        <com.ilepez.weatherapp.utils.PicassoHelper
-    android:id="@+id/temperature_top_area"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/blackOpacity30"
-    >
-<RelativeLayout
+    <RelativeLayout
+        android:id="@+id/temperature_top_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        >
+
+        <ImageView
+            android:id="@+id/imageViewCity"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            />
+
+        <RelativeLayout
+            android:id="@+id/layout_current_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/imageView_refresh"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:tint="#BFffffff"
-            android:padding="5dp"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/sync"
-            />
+            <ImageView
+                android:id="@+id/imageView_refresh"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:padding="5dp"
+                android:src="@drawable/sync"
+                android:tint="#BFffffff"
+                />
+
+            <com.ilepez.weatherapp.utils.WeatherIconTextView
+                android:id="@+id/textview_current_weather_icon"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="60dp"
+                android:gravity="center_horizontal"
+                android:textColor="@android:color/white"
+                android:textSize="80sp"
+                android:textStyle="normal"
+                />
+
+            <TextView
+                android:id="@+id/textview_current_day_temperature"
+                style="@style/textview_current_day_temperature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textview_current_weather_icon"
+                android:textAlignment="center"
+
+                />
 
 
-        <com.ilepez.weatherapp.utils.WeatherIconTextView
-            android:id="@+id/textview_current_weather_icon"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:textSize="80sp"
-            android:layout_marginTop="60dp"
-            android:gravity="center_horizontal"
-            android:textColor="@android:color/white"
-            />
+            <TextView
+                android:id="@+id/textview_city_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@id/textview_current_day_temperature"
+                android:fontFamily="sans-serif-light"
+                android:gravity="center_horizontal"
+                android:paddingLeft="10dp"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
 
-        <TextView
-            android:id="@+id/textview_current_day_temperature"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/textview_current_day_temperature"
-            android:layout_below="@id/textview_current_weather_icon"
-            android:textAlignment="center"
+                />
 
-            />
-
-
-
-
-
-        <TextView
-            android:id="@+id/textview_city_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:textColor="@android:color/white"
-            android:fontFamily="sans-serif-light"
-            android:layout_below="@id/textview_current_day_temperature"
-            android:gravity="center_horizontal"
-            android:paddingLeft="10dp"
-            android:layout_alignParentBottom="true"
-
-            />
-
-        <TextView
-            android:id="@+id/textview_current_day"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="28sp"
-            android:textColor="@android:color/white"
-            android:fontFamily="sans-serif-light"
-            android:layout_below="@id/textview_city_name"
-            android:textAlignment="center"
-            />
+            <TextView
+                android:id="@+id/textview_current_day"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textview_city_name"
+                android:fontFamily="sans-serif-light"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                />
 
         </RelativeLayout>
+
         <RelativeLayout
+            android:id="@+id/layout_daily_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:padding="10dp">
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/recyclerview_daily_weather"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true">
+            android:layout_below="@id/layout_current_info"
 
-                </android.support.v7.widget.RecyclerView>
+            android:padding="10dp">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview_daily_weather"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true">
+
+            </android.support.v7.widget.RecyclerView>
         </RelativeLayout>
 
-        
-    </com.ilepez.weatherapp.utils.PicassoHelper>
+
+    </RelativeLayout>
 </ScrollView>

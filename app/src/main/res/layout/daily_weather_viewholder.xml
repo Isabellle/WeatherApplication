@@ -12,6 +12,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/line"
         android:layout_marginBottom="10dp"
+        android:scaleType="centerCrop"
         />
 
     <com.ilepez.weatherapp.utils.WeatherIconTextView

@@ -1,10 +1,13 @@
 
 package com.ilepez.weatherapp.data.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Datum__ {
+public class Datum__ implements Parcelable {
 
     @SerializedName("time")
     @Expose
@@ -87,6 +90,44 @@ public class Datum__ {
     @SerializedName("precipType")
     @Expose
     private String precipType;
+
+    protected Datum__(Parcel in) {
+        time = in.readInt();
+        summary = in.readString();
+        icon = in.readString();
+        sunriseTime = in.readInt();
+        sunsetTime = in.readInt();
+        moonPhase = in.readDouble();
+        precipIntensity = in.readDouble();
+        temperatureMin = in.readDouble();
+        temperatureMinTime = in.readInt();
+        temperatureMax = in.readDouble();
+        temperatureMaxTime = in.readInt();
+        apparentTemperatureMin = in.readDouble();
+        apparentTemperatureMinTime = in.readInt();
+        apparentTemperatureMax = in.readDouble();
+        apparentTemperatureMaxTime = in.readInt();
+        dewPoint = in.readDouble();
+        humidity = in.readDouble();
+        windSpeed = in.readDouble();
+        windBearing = in.readInt();
+        pressure = in.readDouble();
+        ozone = in.readDouble();
+        precipIntensityMaxTime = in.readInt();
+        precipType = in.readString();
+    }
+
+    public static final Creator<Datum__> CREATOR = new Creator<Datum__>() {
+        @Override
+        public Datum__ createFromParcel(Parcel in) {
+            return new Datum__(in);
+        }
+
+        @Override
+        public Datum__[] newArray(int size) {
+            return new Datum__[size];
+        }
+    };
 
     /**
      * 
@@ -574,4 +615,35 @@ public class Datum__ {
         this.precipType = precipType;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeInt(time);
+        parcel.writeString(summary);
+        parcel.writeString(icon);
+        parcel.writeInt(sunriseTime);
+        parcel.writeInt(sunsetTime);
+        parcel.writeDouble(moonPhase);
+        parcel.writeDouble(precipIntensity);
+        parcel.writeDouble(temperatureMin);
+        parcel.writeInt(temperatureMinTime);
+        parcel.writeDouble(temperatureMax);
+        parcel.writeInt(temperatureMaxTime);
+        parcel.writeDouble(apparentTemperatureMin);
+        parcel.writeInt(apparentTemperatureMinTime);
+        parcel.writeDouble(apparentTemperatureMax);
+        parcel.writeInt(apparentTemperatureMaxTime);
+        parcel.writeDouble(dewPoint);
+        parcel.writeDouble(humidity);
+        parcel.writeDouble(windSpeed);
+        parcel.writeInt(windBearing);
+        parcel.writeDouble(pressure);
+        parcel.writeDouble(ozone);
+        parcel.writeInt(precipIntensityMaxTime);
+        parcel.writeString(precipType);
+    }
 }
