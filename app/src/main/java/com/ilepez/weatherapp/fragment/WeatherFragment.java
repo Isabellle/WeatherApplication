@@ -68,6 +68,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private WeatherIconTextView textViewCurrentWeatherIcon;
     private ImageView imageViewCity, imageViewRefresh;
 
+    private Call<Weather> weatherCall;
+
     private String imgUri;
     int imageResourceId;
 
@@ -215,7 +217,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     private void retrieveWeather() {
 
-        WeatherAPI.Factory.getmWeatherAPI().getWeather(latitude + "," + longitude).enqueue(new Callback<Weather>() {
+        weatherCall = WeatherAPI.Factory.getmWeatherAPI().getWeather(latitude + "," + longitude);
+        weatherCall.enqueue(new Callback<Weather>() {
 
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
@@ -244,6 +247,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
                 Log.v(LOG_TAG, "Erreur:" + getString(R.string.common_error_messsage) + t.getMessage());
+                weatherCall.cancel();
             }
         });
     }
@@ -340,4 +344,14 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         }
         mDailyWeatherAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onDestroy() {
+        Log.v(LOG_TAG, "on destroy");
+        if(weatherCall != null){
+            weatherCall.cancel();
+        }
+        super.onDestroy();
+    }
+
 }

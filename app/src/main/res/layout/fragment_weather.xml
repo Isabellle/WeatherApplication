@@ -86,7 +86,7 @@
             android:id="@+id/layout_daily_details"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
+            android:layout_below="@id/layout_current_info"
             android:padding="10dp">
 
             <android.support.v7.widget.RecyclerView

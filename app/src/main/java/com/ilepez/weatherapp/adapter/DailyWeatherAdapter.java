@@ -34,16 +34,13 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
     @Override
     public DailyWeatherViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.daily_weather_viewholder, parent, false);
-        DailyWeatherViewHolder dailyWeatherViewHolder = new DailyWeatherViewHolder(view);
+        DailyWeatherViewHolder dailyWeatherViewHolder = new DailyWeatherViewHolder(view, parent.getContext());
 
         return dailyWeatherViewHolder;
     }
 
     @Override
     public void onBindViewHolder(DailyWeatherViewHolder holder, int position) {
-
-        Typeface weatherFont = FontCache.getFont(context,"fonts/weathericons-regular-webfont.ttf");
-        holder.textviewDailyWeatherIcon.setTypeface(weatherFont);
 
         String weatherIcon = itemList.get(position).getIcon();
         holder.textviewDailyWeatherIcon.setText(WeatherConditionCodes.fromString(weatherIcon).toString());
@@ -67,7 +64,7 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
 
         TextView textViewDailyTemperatureMax, textViewDailyTemperatureMin,textviewDailyWeatherIcon, textViewDayOfWeek;
 
-        public DailyWeatherViewHolder(final View itemView) {
+        public DailyWeatherViewHolder(final View itemView, Context context) {
 
             super(itemView);
 
@@ -75,6 +72,9 @@ public class DailyWeatherAdapter extends RecyclerView.Adapter<DailyWeatherAdapte
             textViewDailyTemperatureMin = (TextView)itemView.findViewById(R.id.textView_daily_temperature_min);
             textviewDailyWeatherIcon = (TextView)itemView.findViewById(R.id.textview_daily_weather_icon);
             textViewDayOfWeek = (TextView)itemView.findViewById(R.id.textView_daily_day);
+
+            Typeface weatherFont = FontCache.getFont(context,"fonts/weathericons-regular-webfont.ttf");
+            textviewDailyWeatherIcon.setTypeface(weatherFont);
 
         }
 
