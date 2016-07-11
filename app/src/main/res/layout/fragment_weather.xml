@@ -7,15 +7,14 @@
     <RelativeLayout
         android:id="@+id/temperature_top_area"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="@color/colorAccent"
-        >
-
-        <ImageView
+        ><ImageView
             android:id="@+id/imageViewCity"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
+            android:scaleType="fitStart"
+            android:adjustViewBounds="true"
             />
 
         <RelativeLayout

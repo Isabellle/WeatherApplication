@@ -2,6 +2,7 @@ package com.ilepez.weatherapp.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
@@ -19,6 +20,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.DailyWeatherAdapter;
 import com.ilepez.weatherapp.data.model.Daily;
@@ -85,8 +87,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        Log.d(LOG_TAG, "on create veiw");
-
         View view = inflater.inflate(R.layout.fragment_weather, null);
 
         Bundle bundle = getArguments();
@@ -102,6 +102,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             currentWeatherIconValue = savedInstanceState.getString("currentWeatherIconValue");
             currentDayTempValue = savedInstanceState.getString("currentDayTempValue");
             currentCityNameValue = savedInstanceState.getString("currentCityNameValue");
+            imageResourceId = savedInstanceState.getInt("imageResourceId");
 
             mArrayList = savedInstanceState.getParcelableArrayList("mArrayList");
 
@@ -147,7 +148,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         }
         if(mArrayList != null){
             outState.putParcelableArrayList("mArrayList", mArrayList);
-            Log.v(LOG_TAG, "mArrayList - "+currentCityNameValue);
+        }
+        if(imageResourceId > 0){
+            outState.putInt("imageResourceId",imageResourceId);
         }
     }
 
@@ -223,14 +226,13 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                 String weatherIcon = response.body().getCurrently().getIcon();
                 currentWeatherIconValue = WeatherConditionCodes.fromString(weatherIcon).toString();
 
-                updateUI();
+                Daily daily =  response.body().getDaily();
+                fillArrayList(daily);
 
                 if (mProgressDialog.isShowing())
                     mProgressDialog.dismiss();
 
-                Daily daily =  response.body().getDaily();
-                fillArrayList(daily);
-
+                updateUI();
             }
 
             @Override
@@ -246,14 +248,22 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         textViewCurrentDayTemp.setText(currentDayTempValue);
         textViewCurrentCityName.setText(currentCityNameValue);
         if (imageResourceId > 0) {
+
             Glide.
                     with(getContext())
                     .load(imageResourceId)
-                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .dontAnimate()
                     .transform(new GlideBlurTransform(getContext()))
                     .into(imageViewCity);
             imageViewCity.setColorFilter(Color.DKGRAY, PorterDuff.Mode.OVERLAY);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.v(LOG_TAG, "test: "+newConfig.orientation);
     }
 
     @Override
@@ -270,9 +280,17 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         for ( Datum__ data: daily.getData()) {
             if(mArrayList.size() < Constants.FORECAST_NUMBER_OF_DAYS){
                 mArrayList.add(data);
-                Log.v(LOG_TAG, data.getSummary());
             }
         }
         mDailyWeatherAdapter.notifyDataSetChanged();
+    }
+
+    public static class PhotoLoader implements Runnable{
+
+        @Override
+        public void run() {
+            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+
+        }
     }
 }
