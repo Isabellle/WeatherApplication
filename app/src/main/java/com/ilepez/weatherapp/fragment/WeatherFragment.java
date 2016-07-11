@@ -3,8 +3,7 @@ package com.ilepez.weatherapp.fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -16,11 +15,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.DailyWeatherAdapter;
 import com.ilepez.weatherapp.data.model.Daily;
@@ -29,10 +27,16 @@ import com.ilepez.weatherapp.data.model.Weather;
 import com.ilepez.weatherapp.data.remote.WeatherAPI;
 import com.ilepez.weatherapp.utils.Constants;
 import com.ilepez.weatherapp.utils.FontCache;
-import com.ilepez.weatherapp.utils.GlideBlurTransform;
 import com.ilepez.weatherapp.utils.StringHelper;
 import com.ilepez.weatherapp.utils.WeatherConditionCodes;
 import com.ilepez.weatherapp.utils.WeatherIconTextView;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
 import java.util.ArrayList;
 
@@ -63,6 +67,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private WeatherIconTextView textViewCurrentWeatherIcon;
     private ImageView imageViewCity, imageViewRefresh;
 
+    private ProgressBar progressBar;
+
     private RelativeLayout layoutDailyDetails;
 
     int imageResourceId;
@@ -81,13 +87,14 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setRetainInstance(true);
+        //setRetainInstance(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_weather, null);
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getActivity()));
 
         Bundle bundle = getArguments();
         city = bundle.getString("position");
@@ -169,6 +176,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         imageViewCity = (ImageView) view.findViewById(R.id.imageViewCity);
 
         imageResourceId = getActivity().getResources().getIdentifier(city, "drawable", getActivity().getPackageName());
+
+        progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
     }
 
     private void initRecyclerView(View view){
@@ -249,14 +258,36 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         textViewCurrentCityName.setText(currentCityNameValue);
         if (imageResourceId > 0) {
 
-            Glide.
-                    with(getContext())
-                    .load(imageResourceId)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .dontAnimate()
-                    .transform(new GlideBlurTransform(getContext()))
-                    .into(imageViewCity);
-            imageViewCity.setColorFilter(Color.DKGRAY, PorterDuff.Mode.OVERLAY);
+            DisplayImageOptions options;
+            options = new DisplayImageOptions.Builder()
+                    .resetViewBeforeLoading(true)
+                    .cacheOnDisk(true)
+                    .imageScaleType(ImageScaleType.EXACTLY)
+                    .bitmapConfig(Bitmap.Config.RGB_565)
+                    .considerExifParams(true)
+                    .displayer(new FadeInBitmapDisplayer(300))
+                    .build();
+
+            String imgUri = "drawable://" + imageResourceId;
+            ImageLoader.getInstance().displayImage(imgUri, imageViewCity, options, new SimpleImageLoadingListener(){
+
+                @Override
+                public void onLoadingStarted(String imageUri, View view) {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                    super.onLoadingFailed(imageUri, view, failReason);
+                }
+
+                @Override
+                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                    progressBar.setVisibility(View.GONE);
+                }
+
+            });
+
         }
     }
 
@@ -283,14 +314,5 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             }
         }
         mDailyWeatherAdapter.notifyDataSetChanged();
-    }
-
-    public static class PhotoLoader implements Runnable{
-
-        @Override
-        public void run() {
-            android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
-
-        }
     }
 }

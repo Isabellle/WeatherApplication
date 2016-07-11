@@ -9,12 +9,20 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorAccent"
-        ><ImageView
+        >
+
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            />
+
+        <ImageView
             android:id="@+id/imageViewCity"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitStart"
-            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
             />
 
         <RelativeLayout
