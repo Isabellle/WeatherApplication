@@ -2,8 +2,8 @@ package com.ilepez.weatherapp.fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,8 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.ilepez.weatherapp.R;
@@ -25,6 +23,7 @@ import com.ilepez.weatherapp.data.model.Daily;
 import com.ilepez.weatherapp.data.model.Datum__;
 import com.ilepez.weatherapp.data.model.Weather;
 import com.ilepez.weatherapp.data.remote.WeatherAPI;
+import com.ilepez.weatherapp.utils.BlurBuilder;
 import com.ilepez.weatherapp.utils.Constants;
 import com.ilepez.weatherapp.utils.FontCache;
 import com.ilepez.weatherapp.utils.StringHelper;
@@ -36,7 +35,8 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.assist.ImageScaleType;
 import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 
 import java.util.ArrayList;
 
@@ -67,10 +67,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private WeatherIconTextView textViewCurrentWeatherIcon;
     private ImageView imageViewCity, imageViewRefresh;
 
-    private ProgressBar progressBar;
-
-    private RelativeLayout layoutDailyDetails;
-
+    private String imgUri;
     int imageResourceId;
 
     public static WeatherFragment newInstance(String position, Context context) {
@@ -110,6 +107,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             currentDayTempValue = savedInstanceState.getString("currentDayTempValue");
             currentCityNameValue = savedInstanceState.getString("currentCityNameValue");
             imageResourceId = savedInstanceState.getInt("imageResourceId");
+            imgUri = savedInstanceState.getString("imageUri");
 
             mArrayList = savedInstanceState.getParcelableArrayList("mArrayList");
 
@@ -158,12 +156,11 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         }
         if(imageResourceId > 0){
             outState.putInt("imageResourceId",imageResourceId);
+            outState.putString("imageUri", imgUri);
         }
     }
 
     private void initUI(View view){
-
-        layoutDailyDetails = (RelativeLayout)view.findViewById(R.id.layout_daily_details);
 
         imageViewRefresh = (ImageView) view.findViewById(R.id.imageView_refresh);
         textViewCurrentDayTemp = (TextView)view.findViewById(R.id.textview_current_day_temperature);
@@ -176,8 +173,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         imageViewCity = (ImageView) view.findViewById(R.id.imageViewCity);
 
         imageResourceId = getActivity().getResources().getIdentifier(city, "drawable", getActivity().getPackageName());
-
-        progressBar = (ProgressBar)view.findViewById(R.id.progressBar);
+        imgUri = "drawable://" + imageResourceId;
     }
 
     private void initRecyclerView(View view){
@@ -262,39 +258,52 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             options = new DisplayImageOptions.Builder()
                     .resetViewBeforeLoading(true)
                     .cacheOnDisk(true)
+                    .cacheInMemory(true)
                     .imageScaleType(ImageScaleType.EXACTLY)
                     .bitmapConfig(Bitmap.Config.RGB_565)
                     .considerExifParams(true)
                     .displayer(new FadeInBitmapDisplayer(300))
                     .build();
 
-            String imgUri = "drawable://" + imageResourceId;
-            ImageLoader.getInstance().displayImage(imgUri, imageViewCity, options, new SimpleImageLoadingListener(){
-
+            ImageLoader imageLoader = ImageLoader.getInstance();
+            imageLoader.displayImage(imgUri, imageViewCity, options, new ImageLoadingListener() {
                 @Override
                 public void onLoadingStarted(String imageUri, View view) {
-                    progressBar.setVisibility(View.VISIBLE);
+
                 }
 
                 @Override
                 public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-                    super.onLoadingFailed(imageUri, view, failReason);
+
                 }
 
                 @Override
-                public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
-                    progressBar.setVisibility(View.GONE);
+                public void onLoadingComplete(String imageUri, final View view, final Bitmap loadedImage) {
+
+                    imageViewCity.post(new Runnable() {
+                        @Override
+                        public void run() {
+
+                            Bitmap blurredBitmap = BlurBuilder.fastblur(loadedImage, 1, 8);
+                            imageViewCity.setColorFilter( 0x8C000000, PorterDuff.Mode.OVERLAY);
+                            imageViewCity.setImageBitmap(blurredBitmap);
+                        }
+                    });
+
                 }
 
+                @Override
+                public void onLoadingCancelled(String imageUri, View view) {
+
+                }
+            }, new ImageLoadingProgressListener() {
+                @Override
+                public void onProgressUpdate(String imageUri, View view, int current, int total) {
+
+                }
             });
-
         }
-    }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        Log.v(LOG_TAG, "test: "+newConfig.orientation);
     }
 
     @Override
