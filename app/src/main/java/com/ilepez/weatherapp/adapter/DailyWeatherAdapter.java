@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.ilepez.weatherapp.R;
-import com.ilepez.weatherapp.data.model.Datum__;
+import com.ilepez.weatherapp.data.model.weather.Datum__;
 import com.ilepez.weatherapp.utils.DateHelper;
 import com.ilepez.weatherapp.utils.FontCache;
 import com.ilepez.weatherapp.utils.StringHelper;

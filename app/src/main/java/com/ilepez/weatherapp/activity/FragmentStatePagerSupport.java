@@ -3,17 +3,33 @@ package com.ilepez.weatherapp.activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
 import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.FragmentStatePageSupportAdapter;
+import com.ilepez.weatherapp.data.model.City;
+import com.ilepez.weatherapp.utils.StringHelper;
+import com.ilepez.weatherapp.utils.TinyDB;
 
-public class FragmentStatePagerSupport extends AppCompatActivity {
+import java.util.ArrayList;
+
+import io.realm.Realm;
+import io.realm.RealmQuery;
+import io.realm.RealmResults;
+
+public class FragmentStatePagerSupport extends BaseActivity implements ViewPager.OnPageChangeListener{
 
     private static final String LOG_TAG = FragmentStatePagerSupport.class.getSimpleName();
 
     private FragmentStatePageSupportAdapter mAdapter;
     private ViewPager mPager;
+
+    private TinyDB tinyDB;
+    private ArrayList<City> cityList = new ArrayList<>();
+
+    private String[] data = {"paris", "london", "berlin"};
+
+    private Realm realm;
 
     @Override
     public FragmentManager getSupportFragmentManager() {
@@ -25,15 +41,38 @@ public class FragmentStatePagerSupport extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.fragment_pager);
+        getLayoutInflater().inflate(R.layout.fragment_pager, frameLayout);
 
         mPager = (ViewPager)findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);
+        mPager.addOnPageChangeListener(this);
 
-        String[] data = {"paris", "london", "berlin"};
+        realm = Realm.getDefaultInstance();
+
+        RealmQuery<City> query = realm.where(City.class);
+        final RealmResults<City> cities = query.findAll();
+
+        Log.v(LOG_TAG, String.valueOf(cities.size()));
 
         mAdapter = new FragmentStatePageSupportAdapter(getSupportFragmentManager(), 3, this, data);
         mPager.setAdapter(mAdapter);
         mPager.setOffscreenPageLimit(0);
+        setTitle(StringHelper.capitalize(data[0]));
+        
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        setTitle(StringHelper.capitalize(data[position]));
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
     }
 }

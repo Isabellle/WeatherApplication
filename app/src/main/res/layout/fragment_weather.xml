@@ -1,5 +1,9 @@
-<ScrollView android:id="@+id/scrollview"
-            xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_swipe"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <ScrollView android:id="@+id/scrollview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport="true">
@@ -23,16 +27,6 @@
             android:id="@+id/layout_current_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/imageView_refresh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:padding="10dp"
-                android:src="@drawable/sync"
-                android:tint="#BFffffff"
-                />
 
             <com.ilepez.weatherapp.utils.WeatherIconTextView
                 android:id="@+id/textview_current_weather_icon"
@@ -100,3 +94,4 @@
 
     </RelativeLayout>
 </ScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

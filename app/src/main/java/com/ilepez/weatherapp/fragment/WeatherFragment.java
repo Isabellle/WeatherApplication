@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -20,9 +21,9 @@ import android.widget.TextView;
 
 import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.DailyWeatherAdapter;
-import com.ilepez.weatherapp.data.model.Daily;
-import com.ilepez.weatherapp.data.model.Datum__;
-import com.ilepez.weatherapp.data.model.Weather;
+import com.ilepez.weatherapp.data.model.weather.Daily;
+import com.ilepez.weatherapp.data.model.weather.Datum__;
+import com.ilepez.weatherapp.data.model.weather.Weather;
 import com.ilepez.weatherapp.data.remote.WeatherAPI;
 import com.ilepez.weatherapp.utils.BlurBuilder;
 import com.ilepez.weatherapp.utils.Constants;
@@ -45,10 +46,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
 /**
  * Created by Isabelle Lepez on 10/07/16.
  */
-public class WeatherFragment extends Fragment implements View.OnClickListener{
+public class WeatherFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String LOG_TAG = WeatherFragment.class.getSimpleName();
 
@@ -64,9 +66,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private Double latitude, longitude;
 
     private TextView textViewCurrentDayTemp,textViewCurrentCityName;
-    private String currentCityNameValue, currentDayTempValue, currentWeatherIconValue;
+    private String currentCityNameValue, currentDayTempValue, currentWeatherIconValue, currentSummary;
     private WeatherIconTextView textViewCurrentWeatherIcon;
-    private ImageView imageViewCity, imageViewRefresh;
+    private ImageView imageViewCity;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private Call<Weather> weatherCall;
 
@@ -108,6 +111,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
             currentWeatherIconValue = savedInstanceState.getString("currentWeatherIconValue");
             currentDayTempValue = savedInstanceState.getString("currentDayTempValue");
+            currentSummary = savedInstanceState.getString("currentSummary");
             currentCityNameValue = savedInstanceState.getString("currentCityNameValue");
             imageResourceId = savedInstanceState.getInt("imageResourceId");
             imgUri = savedInstanceState.getString("imageUri");
@@ -125,8 +129,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
             initRecyclerView(view);
         }
-
-        setOnClickListeners();
 
         return view;
     }
@@ -148,6 +150,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             outState.putString("currentCityNameValue",currentCityNameValue);
         }
 
+        if(!currentSummary.isEmpty()){
+            outState.putString("currentSummary",currentSummary);
+        }
+
         if(!currentDayTempValue.isEmpty()){
             outState.putString("currentDayTempValue",currentDayTempValue);
         }
@@ -165,7 +171,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     private void initUI(View view){
 
-        imageViewRefresh = (ImageView) view.findViewById(R.id.imageView_refresh);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.layout_swipe);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         textViewCurrentDayTemp = (TextView)view.findViewById(R.id.textview_current_day_temperature);
         textViewCurrentCityName = (TextView)view.findViewById(R.id.textview_city_name);
 
@@ -187,11 +195,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         mRecyclerView.setLayoutManager(mGridLayoutManager);
         mRecyclerView.setAdapter(mDailyWeatherAdapter);
         mRecyclerView.setHasFixedSize(true);
-    }
-
-    private void setOnClickListeners(){
-
-        imageViewRefresh.setOnClickListener(this);
     }
 
     private void getCityCoords(String city){
@@ -223,14 +226,12 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
 
-                mProgressDialog = new ProgressDialog(getActivity());
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setMessage(getString(R.string.loadingMessage));
-                mProgressDialog.show();
+                swipeRefreshLayout.setRefreshing(true);
 
                 int currentTemperature = StringHelper.FormatDoubleToInt(response.body().getCurrently().getTemperature());
                 currentDayTempValue = currentTemperature+" °C";
-                currentCityNameValue = StringHelper.capitalize(city)+" - "+response.body().getCurrently().getSummary();
+                currentCityNameValue = StringHelper.capitalize(city);
+                currentSummary = response.body().getCurrently().getSummary();
 
                 String weatherIcon = response.body().getCurrently().getIcon();
                 currentWeatherIconValue = WeatherConditionCodes.fromString(weatherIcon).toString();
@@ -238,10 +239,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                 Daily daily =  response.body().getDaily();
                 fillArrayList(daily);
 
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
-
                 updateUI();
+
+                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -258,11 +258,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
         switch(orientation){
             case Configuration.ORIENTATION_LANDSCAPE:
-                Log.v(LOG_TAG, "landscape");
                 imageViewCity.setAdjustViewBounds(false);
                 break;
             case Configuration.ORIENTATION_PORTRAIT:
-                Log.v(LOG_TAG, "landscape");
                 imageViewCity.setAdjustViewBounds(true);
                 break;
             default:
@@ -271,7 +269,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
         textViewCurrentWeatherIcon.setText(currentWeatherIconValue);
         textViewCurrentDayTemp.setText(currentDayTempValue);
-        textViewCurrentCityName.setText(currentCityNameValue);
+        textViewCurrentCityName.setText(currentSummary);
         if (imageResourceId > 0) {
 
             DisplayImageOptions options;
@@ -326,15 +324,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     }
 
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()){
-            case R.id.imageView_refresh:
-                retrieveWeather();
-                break;
-        }
-    }
-
 
     public void fillArrayList(Daily daily){
         for ( Datum__ data: daily.getData()) {
@@ -347,11 +336,14 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onDestroy() {
-        Log.v(LOG_TAG, "on destroy");
         if(weatherCall != null){
             weatherCall.cancel();
         }
         super.onDestroy();
     }
 
+    @Override
+    public void onRefresh() {
+        retrieveWeather();
+    }
 }
