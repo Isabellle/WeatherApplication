@@ -9,7 +9,6 @@ import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.FragmentStatePageSupportAdapter;
 import com.ilepez.weatherapp.data.model.City;
 import com.ilepez.weatherapp.utils.StringHelper;
-import com.ilepez.weatherapp.utils.TinyDB;
 
 import java.util.ArrayList;
 
@@ -24,7 +23,6 @@ public class FragmentStatePagerSupport extends BaseActivity implements ViewPager
     private FragmentStatePageSupportAdapter mAdapter;
     private ViewPager mPager;
 
-    private TinyDB tinyDB;
     private ArrayList<City> cityList = new ArrayList<>();
 
     private String[] data = {"paris", "london", "berlin"};
@@ -58,7 +56,6 @@ public class FragmentStatePagerSupport extends BaseActivity implements ViewPager
         mPager.setAdapter(mAdapter);
         mPager.setOffscreenPageLimit(0);
         setTitle(StringHelper.capitalize(data[0]));
-        
     }
 
     @Override
