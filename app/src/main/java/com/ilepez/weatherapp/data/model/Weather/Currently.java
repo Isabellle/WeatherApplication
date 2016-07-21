@@ -1,10 +1,11 @@
 
-package com.ilepez.weatherapp.data.model;
+package com.ilepez.weatherapp.data.model.weather;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Datum_ {
+
+public class Currently {
 
     @SerializedName("time")
     @Expose
@@ -15,6 +16,12 @@ public class Datum_ {
     @SerializedName("icon")
     @Expose
     private String icon;
+    @SerializedName("nearestStormDistance")
+    @Expose
+    private int nearestStormDistance;
+    @SerializedName("nearestStormBearing")
+    @Expose
+    private Double nearestStormBearing;
     @SerializedName("precipIntensity")
     @Expose
     private Double precipIntensity;
@@ -41,7 +48,7 @@ public class Datum_ {
     private int windBearing;
     @SerializedName("visibility")
     @Expose
-    private Double visibility;
+    private double visibility;
     @SerializedName("cloudCover")
     @Expose
     private double cloudCover;
@@ -51,9 +58,6 @@ public class Datum_ {
     @SerializedName("ozone")
     @Expose
     private double ozone;
-    @SerializedName("precipType")
-    @Expose
-    private String precipType;
 
     /**
      * 
@@ -107,6 +111,42 @@ public class Datum_ {
      */
     public void setIcon(String icon) {
         this.icon = icon;
+    }
+
+    /**
+     * 
+     * @return
+     *     The nearestStormDistance
+     */
+    public int getNearestStormDistance() {
+        return nearestStormDistance;
+    }
+
+    /**
+     * 
+     * @param nearestStormDistance
+     *     The nearestStormDistance
+     */
+    public void setNearestStormDistance(int nearestStormDistance) {
+        this.nearestStormDistance = nearestStormDistance;
+    }
+
+    /**
+     * 
+     * @return
+     *     The nearestStormBearing
+     */
+    public Double getNearestStormBearing() {
+        return nearestStormBearing;
+    }
+
+    /**
+     * 
+     * @param nearestStormBearing
+     *     The nearestStormBearing
+     */
+    public void setNearestStormBearing(Double nearestStormBearing) {
+        this.nearestStormBearing = nearestStormBearing;
     }
 
     /**
@@ -258,7 +298,7 @@ public class Datum_ {
      * @return
      *     The visibility
      */
-    public Double getVisibility() {
+    public double getVisibility() {
         return visibility;
     }
 
@@ -267,7 +307,7 @@ public class Datum_ {
      * @param visibility
      *     The visibility
      */
-    public void setVisibility(Double visibility) {
+    public void setVisibility(double visibility) {
         this.visibility = visibility;
     }
 
@@ -323,24 +363,6 @@ public class Datum_ {
      */
     public void setOzone(double ozone) {
         this.ozone = ozone;
-    }
-
-    /**
-     * 
-     * @return
-     *     The precipType
-     */
-    public String getPrecipType() {
-        return precipType;
-    }
-
-    /**
-     * 
-     * @param precipType
-     *     The precipType
-     */
-    public void setPrecipType(String precipType) {
-        this.precipType = precipType;
     }
 
 }

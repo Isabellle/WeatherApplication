@@ -1,5 +1,5 @@
 
-package com.ilepez.weatherapp.data.model;
+package com.ilepez.weatherapp.data.model.weather;
 
 import android.os.Parcel;
 import android.os.Parcelable;

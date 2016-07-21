@@ -5,7 +5,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.ilepez.weatherapp.data.model.City;
 import com.ilepez.weatherapp.fragment.WeatherFragment;
+
+import java.util.ArrayList;
 
 /**
  * Created by Isabelle Lepez on 10/07/16.
@@ -13,18 +16,18 @@ import com.ilepez.weatherapp.fragment.WeatherFragment;
 public class FragmentStatePageSupportAdapter extends FragmentStatePagerAdapter {
     private int slideCount;
     private Context context;
-    private String[] data;
+    private ArrayList<City> cityArrayList = new ArrayList<>();
 
-    public FragmentStatePageSupportAdapter(FragmentManager fm, int slideCount, Context context, String[] data) {
+    public FragmentStatePageSupportAdapter(FragmentManager fm, int slideCount, Context context, ArrayList<City> cityArrayList) {
         super(fm);
         this.slideCount = slideCount;
         this.context = context;
-        this.data = data;
+        this.cityArrayList = cityArrayList;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return WeatherFragment.newInstance(data[position], context);
+        return WeatherFragment.newInstance(cityArrayList.get(position), context);
     }
 
     @Override
@@ -32,8 +35,8 @@ public class FragmentStatePageSupportAdapter extends FragmentStatePagerAdapter {
         return slideCount;
     }
 
-    public void setData(String[] data) {
-        this.data = data;
+    public void setData(ArrayList<City> cityArrayList) {
+        this.cityArrayList = cityArrayList;
     }
 
     @Override

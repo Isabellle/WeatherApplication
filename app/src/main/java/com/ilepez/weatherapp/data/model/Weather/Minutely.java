@@ -1,5 +1,5 @@
 
-package com.ilepez.weatherapp.data.model;
+package com.ilepez.weatherapp.data.model.weather;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Daily {
+public class Minutely {
 
     @SerializedName("summary")
     @Expose
@@ -17,7 +17,7 @@ public class Daily {
     private String icon;
     @SerializedName("data")
     @Expose
-    private List<Datum__> data = new ArrayList<Datum__>();
+    private List<Datum> data = new ArrayList<Datum>();
 
     /**
      * 
@@ -60,7 +60,7 @@ public class Daily {
      * @return
      *     The data
      */
-    public List<Datum__> getData() {
+    public List<Datum> getData() {
         return data;
     }
 
@@ -69,7 +69,7 @@ public class Daily {
      * @param data
      *     The data
      */
-    public void setData(List<Datum__> data) {
+    public void setData(List<Datum> data) {
         this.data = data;
     }
 

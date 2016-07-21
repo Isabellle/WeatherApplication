@@ -4,4 +4,12 @@
     <string name="common_error_messsage">Une erreur est survenue: </string>
     <string name="reload">Rafraîchir</string>
     <string name="loadingMessage">Hop hop...</string>
+    <string name="app_label">Search</string>
+    <string name="Add">Ajouter</string>
+    <string name="title_activity_base">BaseActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 </resources>

@@ -1,6 +1,6 @@
 package com.ilepez.weatherapp.data.remote;
 
-import com.ilepez.weatherapp.data.model.Weather;
+import com.ilepez.weatherapp.data.model.weather.Weather;
 import com.ilepez.weatherapp.utils.Constants;
 
 import retrofit2.Call;
@@ -14,7 +14,6 @@ import retrofit2.http.Path;
  */
 public interface WeatherAPI {
 
-    //?q=London,us&mode=json&appid="
     @GET("/forecast/"+Constants.FORECAST_IO_API_KEY+"{location}?lang="+Constants.FORECAST_IO_LANGUAGE+"&units="+Constants.FORECAST_IO_UNITS)
     Call<Weather> getWeather(@Path("location") String location);
 
@@ -38,6 +37,8 @@ public interface WeatherAPI {
             else{
                 return mWeatherAPI;
             }
+        }
+
+
     }
-}
 }

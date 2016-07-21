@@ -1,5 +1,10 @@
-<ScrollView android:id="@+id/scrollview"
-            xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_swipe"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent">
+    <ScrollView android:id="@+id/scrollview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport="true">
@@ -8,7 +13,6 @@
         android:id="@+id/temperature_top_area"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
         >
 
         <ImageView
@@ -23,16 +27,6 @@
             android:id="@+id/layout_current_info"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <ImageView
-                android:id="@+id/imageView_refresh"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:padding="10dp"
-                android:src="@drawable/sync"
-                android:tint="#BFffffff"
-                />
 
             <com.ilepez.weatherapp.utils.WeatherIconTextView
                 android:id="@+id/textview_current_weather_icon"
@@ -57,7 +51,7 @@
 
 
             <TextView
-                android:id="@+id/textview_city_name"
+                android:id="@+id/textview_summary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/textview_current_day_temperature"
@@ -73,7 +67,7 @@
                 android:id="@+id/textview_current_day"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/textview_city_name"
+                android:layout_below="@id/textview_summary"
                 android:fontFamily="sans-serif-light"
                 android:textAlignment="center"
                 android:textColor="@android:color/white"
@@ -100,3 +94,4 @@
 
     </RelativeLayout>
 </ScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

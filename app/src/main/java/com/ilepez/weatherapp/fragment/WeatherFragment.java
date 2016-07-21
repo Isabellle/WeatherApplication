@@ -1,14 +1,16 @@
 package com.ilepez.weatherapp.fragment;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,26 +20,23 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.DailyWeatherAdapter;
-import com.ilepez.weatherapp.data.model.Daily;
-import com.ilepez.weatherapp.data.model.Datum__;
-import com.ilepez.weatherapp.data.model.Weather;
+import com.ilepez.weatherapp.data.model.City;
+import com.ilepez.weatherapp.data.model.picture.Photo;
+import com.ilepez.weatherapp.data.model.picture.Picture;
+import com.ilepez.weatherapp.data.model.weather.Daily;
+import com.ilepez.weatherapp.data.model.weather.Datum__;
+import com.ilepez.weatherapp.data.model.weather.Weather;
+import com.ilepez.weatherapp.data.remote.ImageFlickrApi;
 import com.ilepez.weatherapp.data.remote.WeatherAPI;
-import com.ilepez.weatherapp.utils.BlurBuilder;
 import com.ilepez.weatherapp.utils.Constants;
 import com.ilepez.weatherapp.utils.FontCache;
 import com.ilepez.weatherapp.utils.StringHelper;
 import com.ilepez.weatherapp.utils.WeatherConditionCodes;
 import com.ilepez.weatherapp.utils.WeatherIconTextView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoader;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.FailReason;
-import com.nostra13.universalimageloader.core.assist.ImageScaleType;
-import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
-import com.nostra13.universalimageloader.core.listener.ImageLoadingProgressListener;
 
 import java.util.ArrayList;
 
@@ -45,10 +44,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+
 /**
  * Created by Isabelle Lepez on 10/07/16.
  */
-public class WeatherFragment extends Fragment implements View.OnClickListener{
+public class WeatherFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     public static final String LOG_TAG = WeatherFragment.class.getSimpleName();
 
@@ -60,25 +60,33 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     private ProgressDialog mProgressDialog;
 
-    private String city;
+    private City city;
     private Double latitude, longitude;
 
-    private TextView textViewCurrentDayTemp,textViewCurrentCityName;
-    private String currentCityNameValue, currentDayTempValue, currentWeatherIconValue;
+    private TextView textViewCurrentDayTemp,textViewCurrentSummary;
+    private String currentCityNameValue, currentDayTempValue, currentWeatherIconValue, currentSummary;
     private WeatherIconTextView textViewCurrentWeatherIcon;
-    private ImageView imageViewCity, imageViewRefresh;
+    private ImageView imageViewCity;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private Call<Weather> weatherCall;
+    private Call<Picture> pictureCall;
 
-    private String imgUri;
-    int imageResourceId;
+    private String pictureID;
+    private int imageResourceId;
+    private String pictureOwner;
+    private String imageURI;
 
-    public static WeatherFragment newInstance(String position, Context context) {
+    private Activity activity;
+
+    private Photo photo;
+
+    public static WeatherFragment newInstance(City city, Context context) {
 
         WeatherFragment f = new WeatherFragment();
 
         Bundle args = new Bundle();
-        args.putString("position", position);
+        args.putParcelable("city", city);
         f.setArguments(args);
 
         return f;
@@ -87,46 +95,42 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setRetainInstance(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_weather, null);
-        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getActivity()));
 
         Bundle bundle = getArguments();
-        city = bundle.getString("position");
-
+        city = bundle.getParcelable("city");
         initUI(view);
+
+        latitude = city.getCityLat();
+        longitude = city.getCityLong();
+        currentCityNameValue = city.getCityName();
 
         if(savedInstanceState != null){
 
-            latitude = savedInstanceState.getDouble("latitude");
-            longitude = savedInstanceState.getDouble("longitude");
-
             currentWeatherIconValue = savedInstanceState.getString("currentWeatherIconValue");
             currentDayTempValue = savedInstanceState.getString("currentDayTempValue");
-            currentCityNameValue = savedInstanceState.getString("currentCityNameValue");
+            currentSummary = savedInstanceState.getString("currentSummary");
             imageResourceId = savedInstanceState.getInt("imageResourceId");
-            imgUri = savedInstanceState.getString("imageUri");
+            imageURI = savedInstanceState.getString("imageURI");
+            Log.v(LOG_TAG, "Saved ImageURI: "+imageURI);
 
             mArrayList = savedInstanceState.getParcelableArrayList("mArrayList");
 
             initRecyclerView(view);
+            displayImageFromFlickr();
 
             updateUI();
         }
         else{
-
-            getCityCoords(city);
             retrieveWeather();
-
+            retrievePictureWeather();
             initRecyclerView(view);
         }
-
-        setOnClickListeners();
 
         return view;
     }
@@ -135,48 +139,40 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     public void onSaveInstanceState(Bundle outState) {
 
         super.onSaveInstanceState(outState);
+        outState.putParcelable("city", city);
 
-        if(latitude != null){
-            outState.putDouble("latitude",latitude);
+        if(currentSummary != null){
+            outState.putString("currentSummary",currentSummary);
         }
 
-        if(longitude != null){
-            outState.putDouble("latitude",longitude);
-        }
-
-        if(!currentCityNameValue.isEmpty()){
-            outState.putString("currentCityNameValue",currentCityNameValue);
-        }
-
-        if(!currentDayTempValue.isEmpty()){
+        if(currentDayTempValue != null){
             outState.putString("currentDayTempValue",currentDayTempValue);
         }
-        if(!currentWeatherIconValue.isEmpty()){
+        if(currentWeatherIconValue != null){
             outState.putString("currentWeatherIconValue",currentWeatherIconValue);
         }
         if(mArrayList != null){
             outState.putParcelableArrayList("mArrayList", mArrayList);
         }
-        if(imageResourceId > 0){
-            outState.putInt("imageResourceId",imageResourceId);
-            outState.putString("imageUri", imgUri);
+        if(imageURI != null){
+            outState.putString("imageURI", imageURI);
+            Log.v(LOG_TAG, "ImageURI: "+imageURI);
         }
     }
 
     private void initUI(View view){
 
-        imageViewRefresh = (ImageView) view.findViewById(R.id.imageView_refresh);
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.layout_swipe);
+        swipeRefreshLayout.setOnRefreshListener(this);
+
         textViewCurrentDayTemp = (TextView)view.findViewById(R.id.textview_current_day_temperature);
-        textViewCurrentCityName = (TextView)view.findViewById(R.id.textview_city_name);
+        textViewCurrentSummary = (TextView)view.findViewById(R.id.textview_summary);
 
         textViewCurrentWeatherIcon = (WeatherIconTextView)view.findViewById(R.id.textview_current_weather_icon);
         Typeface weatherFont = FontCache.getFont(getContext(),"fonts/weathericons-regular-webfont.ttf");
         textViewCurrentWeatherIcon.setTypeface(weatherFont);
 
         imageViewCity = (ImageView) view.findViewById(R.id.imageViewCity);
-
-        imageResourceId = getActivity().getResources().getIdentifier(city, "drawable", getActivity().getPackageName());
-        imgUri = "drawable://" + imageResourceId;
     }
 
     private void initRecyclerView(View view){
@@ -189,33 +185,12 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         mRecyclerView.setHasFixedSize(true);
     }
 
-    private void setOnClickListeners(){
-
-        imageViewRefresh.setOnClickListener(this);
-    }
-
-    private void getCityCoords(String city){
-
-        switch (city) {
-            case "paris":
-                latitude = 50.8503;
-                longitude = 4.3517;
-                break;
-            case "london":
-                latitude = 48.8566;
-                longitude = 2.3522;
-                break;
-            case "berlin":
-                latitude = 37.7749;
-                longitude = 122.4194;
-                break;
-            default:
-                latitude = 37.7749;
-                longitude = 122.4194;
-        }
-    }
-
     private void retrieveWeather() {
+
+        swipeRefreshLayout.setRefreshing(true);
+
+        latitude = city.getCityLat();
+        longitude = city.getCityLong();
 
         weatherCall = WeatherAPI.Factory.getmWeatherAPI().getWeather(latitude + "," + longitude);
         weatherCall.enqueue(new Callback<Weather>() {
@@ -223,33 +198,89 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             @Override
             public void onResponse(Call<Weather> call, Response<Weather> response) {
 
-                mProgressDialog = new ProgressDialog(getActivity());
-                mProgressDialog.setIndeterminate(true);
-                mProgressDialog.setMessage(getString(R.string.loadingMessage));
-                mProgressDialog.show();
+                activity = getActivity();
 
-                int currentTemperature = StringHelper.FormatDoubleToInt(response.body().getCurrently().getTemperature());
-                currentDayTempValue = currentTemperature+" °C";
-                currentCityNameValue = StringHelper.capitalize(city)+" - "+response.body().getCurrently().getSummary();
+                if(activity != null && isAdded()) {
 
-                String weatherIcon = response.body().getCurrently().getIcon();
-                currentWeatherIconValue = WeatherConditionCodes.fromString(weatherIcon).toString();
+                    int currentTemperature = StringHelper.FormatDoubleToInt(response.body().getCurrently().getTemperature());
+                    currentDayTempValue = currentTemperature+" °C";
+                    currentSummary = response.body().getCurrently().getSummary();
 
-                Daily daily =  response.body().getDaily();
-                fillArrayList(daily);
+                    String weatherIcon = response.body().getCurrently().getIcon();
+                    currentWeatherIconValue = WeatherConditionCodes.fromString(weatherIcon).toString();
 
-                if (mProgressDialog.isShowing())
-                    mProgressDialog.dismiss();
+                    Daily daily =  response.body().getDaily();
+                    fillArrayList(daily);
 
-                updateUI();
+                    updateUI();
+
+                }
+
             }
 
             @Override
             public void onFailure(Call<Weather> call, Throwable t) {
-                Log.v(LOG_TAG, "Erreur:" + getString(R.string.common_error_messsage) + t.getMessage());
+                if(activity != null && isAdded()) {
+                    Log.v(LOG_TAG, "Erreur:" + getString(R.string.common_error_messsage) + t.getMessage());
+                }
                 weatherCall.cancel();
             }
         });
+
+        swipeRefreshLayout.setRefreshing(false);
+
+    }
+
+    public void retrievePictureWeather(){
+
+        pictureCall = ImageFlickrApi.Factory.getImageFlickApi().getPicture(latitude, longitude);
+        pictureCall.enqueue(new Callback<Picture>() {
+            @Override
+            public void onResponse(Call<Picture> call, Response<Picture> response) {
+
+                activity = getActivity();
+
+                if(activity != null && isAdded()){
+
+                    photo = response.body().getPhotos().getPhoto().get(0);
+                    getImageUri(photo);
+                    displayImageFromFlickr();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Picture> call, Throwable t) {
+                if(activity != null && isAdded()){
+                    Log.v(LOG_TAG, "Erreur:" + getString(R.string.common_error_messsage) + t.getMessage());
+                }
+                pictureCall.cancel();
+            }
+        });
+
+    }
+
+    private void getImageUri(Photo photo) {
+
+        imageURI = "http://farm"+photo.getFarm()+".staticflickr.com/"+photo.getServer()+"/"+photo.getId()+"_"+photo.getSecret()+".jpg";
+
+    }
+
+    private void displayImageFromFlickr(){
+        Handler handler = new Handler();
+
+        final Runnable r = new Runnable() {
+            public void run() {
+                Glide.with(getActivity())
+                        .load(imageURI)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .into(imageViewCity);
+
+                imageViewCity.setColorFilter(0xff888888, PorterDuff.Mode.MULTIPLY);
+            }
+        };
+
+        handler.post(r);
+
     }
 
     public void updateUI(){
@@ -258,12 +289,11 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
         switch(orientation){
             case Configuration.ORIENTATION_LANDSCAPE:
-                Log.v(LOG_TAG, "landscape");
                 imageViewCity.setAdjustViewBounds(false);
                 break;
             case Configuration.ORIENTATION_PORTRAIT:
-                Log.v(LOG_TAG, "landscape");
                 imageViewCity.setAdjustViewBounds(true);
+                imageViewCity.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 break;
             default:
                 imageViewCity.setAdjustViewBounds(true);
@@ -271,68 +301,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
         textViewCurrentWeatherIcon.setText(currentWeatherIconValue);
         textViewCurrentDayTemp.setText(currentDayTempValue);
-        textViewCurrentCityName.setText(currentCityNameValue);
-        if (imageResourceId > 0) {
-
-            DisplayImageOptions options;
-            options = new DisplayImageOptions.Builder()
-                    .resetViewBeforeLoading(true)
-                    .cacheOnDisk(true)
-                    .cacheInMemory(true)
-                    .imageScaleType(ImageScaleType.EXACTLY)
-                    .bitmapConfig(Bitmap.Config.RGB_565)
-                    .considerExifParams(true)
-                    .displayer(new FadeInBitmapDisplayer(300))
-                    .build();
-
-            ImageLoader imageLoader = ImageLoader.getInstance();
-            imageLoader.displayImage(imgUri, imageViewCity, options, new ImageLoadingListener() {
-                @Override
-                public void onLoadingStarted(String imageUri, View view) {
-
-                }
-
-                @Override
-                public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
-
-                }
-
-                @Override
-                public void onLoadingComplete(String imageUri, final View view, final Bitmap loadedImage) {
-
-                    imageViewCity.post(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            Bitmap blurredBitmap = BlurBuilder.fastblur(loadedImage, 1, 8);
-                            imageViewCity.setColorFilter( 0xB3000000, PorterDuff.Mode.OVERLAY);
-                            imageViewCity.setImageBitmap(blurredBitmap);
-                        }
-                    });
-
-                }
-
-                @Override
-                public void onLoadingCancelled(String imageUri, View view) {
-
-                }
-            }, new ImageLoadingProgressListener() {
-                @Override
-                public void onProgressUpdate(String imageUri, View view, int current, int total) {
-
-                }
-            });
-        }
-
-    }
-
-    @Override
-    public void onClick(View view) {
-        switch(view.getId()){
-            case R.id.imageView_refresh:
-                retrieveWeather();
-                break;
-        }
+        textViewCurrentSummary.setText(currentSummary);
     }
 
 
@@ -343,15 +312,22 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             }
         }
         mDailyWeatherAdapter.notifyDataSetChanged();
+        updateUI();
     }
 
     @Override
     public void onDestroy() {
-        Log.v(LOG_TAG, "on destroy");
         if(weatherCall != null){
             weatherCall.cancel();
+        }
+        if(pictureCall != null){
+            pictureCall.cancel();
         }
         super.onDestroy();
     }
 
+    @Override
+    public void onRefresh() {
+        retrieveWeather();
+    }
 }
