@@ -1,5 +1,6 @@
 package com.ilepez.weatherapp.activity;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -11,19 +12,17 @@ import android.widget.AutoCompleteTextView;
 
 import com.ilepez.weatherapp.R;
 import com.ilepez.weatherapp.adapter.GooglePlacesAutoCompleteAdapter;
-import com.ilepez.weatherapp.data.model.City;
+import com.ilepez.weatherapp.utils.DateHelper;
+import com.ilepez.weatherapp.utils.RealmHelper;
 
 import java.io.IOException;
 import java.util.List;
-
-import io.realm.Realm;
 
 
 public class SearchActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     private static final String LOG_TAG = SearchActivity.class.getSimpleName();
     private AutoCompleteTextView autoCompleteTextView;
-    private Realm realm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,18 +54,10 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
                 final double itemLatitude = address.getLatitude();
                 final double itemLongitude = address.getLongitude();
 
-                realm = Realm.getDefaultInstance();
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-                        City city = new City();
-                        city.setCityLat(itemLatitude);
-                        city.setCityLong(itemLongitude);
-                        city.setCityName(description);
-                        realm.copyToRealm(city);
-                    }
-                });
+                RealmHelper.addNewCity(description, itemLatitude, itemLongitude, DateHelper.getCurrentTimestamp());
 
+                Intent intent = new Intent(this, FragmentStatePagerSupport.class);
+                startActivity(intent);
             }
             else{
                 Log.v(LOG_TAG, "Geocoder not available");
@@ -74,8 +65,8 @@ public class SearchActivity extends AppCompatActivity implements AdapterView.OnI
     }
 
     @Override
-    public void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        realm.close();
+    protected void onDestroy() {
+        super.onDestroy();
+        RealmHelper.closeRealm();
     }
 }

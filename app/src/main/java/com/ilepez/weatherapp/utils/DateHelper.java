@@ -17,4 +17,11 @@ public class DateHelper {
         SimpleDateFormat df=new SimpleDateFormat("EEEE",prefs);
         return df.format(date);
     }
+
+    public static long getCurrentTimestamp(){
+
+        Long timestamp = System.currentTimeMillis()/1000;
+        return timestamp;
+
+    }
 }
