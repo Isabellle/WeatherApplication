@@ -1,9 +1,9 @@
 # WeatherApplication
-Weather Android Application allows a user to retrieve the weather of a city. City are stored.
+Weather Android Application that allows a user to retrieve the weather of a city. City are stored and displayed in a viewpager.
 
 Library used:
 - Realm to store cities
-- Forecast.io api to retrieve weather forecast
+- http://Forecast.io api to retrieve weather forecast
 - Flick api to show a background that corresponds to the selected city
 - Glide to display background images
 - Custom font to display weather icon [https://github.com/erikflowers/weather-icons]
