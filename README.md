@@ -1,5 +1,12 @@
 # WeatherApplication
-Weather Android Application that makes use of Retrofit, Custom Fonts, Picasso etc. to display weather forecast using the Forecast.io api.
+Weather Android Application allows a user to retrieve the weather of a city. City are stored.
+
+Library used:
+- Realm to store cities
+- Forecast.io api to retrieve weather forecast
+- Flick api to show a background that corresponds to the selected city
+- Glide to display background images
+- Custom font to display weather icon [https://github.com/erikflowers/weather-icons]
 
 ![alt tag](http://i.imgur.com/cDtsqIr.png)
 
