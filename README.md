@@ -6,7 +6,7 @@ Weather Android Application that makes use of Retrofit, Custom Fonts, Picasso et
 Note: For the moment, cities are hard-coded.
 
 -- TODO --
-- ~~Let the user enter a city~~ Done
-- ~~Keep cities in SharePreferences~~ Done, but using Realm
+- ~~Let the user enter a city~~ **Done**
+- ~~Keep cities in SharePreferences~~ **Done, but using Realm**
 - Better handle the background image in Landscape mode
 - Add more information regarding weather forecast
